@@ -47,12 +47,23 @@ for target in targets:
 targets = []
 df = df.drop(targets, axis=1)
 
+# 変数の型ごとに欠損値の扱いが異なるため、変数ごとに処理
+for column in df.columns:
+    if df[column].dtype=='O':
+        df[column] = df[column].fillna('Unknown')
+    elif df[column].dtype=='int64':
+        df[column] = df[column].fillna(0)
+    elif df[column].dtype=='float64':
+        df[column] = df[column].fillna(0.0)
+    else:
+        raise ValueError("Unsupported dtype encountered. Program terminated.")
+
 train_test = df
 
 # trainとtestに再分割
 train = train_test.iloc[:len(train)]
 test = train_test.iloc[len(train):]
-test = test.drop('', axis=1)
+test = test.drop('Transported', axis=1)
 
 print(train.info())
 print(test.info())

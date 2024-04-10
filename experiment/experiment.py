@@ -155,6 +155,7 @@ class ExpBase:
             )
             # feature_importance(feature_importance_list, self.columns, self.model_name)
             y_test_pred_all = np.argmax(np.concatenate(y_test_pred_all, axis=1).mean(axis=1), axis=1)
+            y_test_pred_all = self.label_encoder.inverse_transform(y_test_pred_all)
         
         elif self.task == "regressor":
             logger.info(
@@ -164,8 +165,9 @@ class ExpBase:
             # feature_importance(feature_importance_list, self.columns, self.model_name)
             y_test_pred_all = np.vstack(y_test_pred_all)
             y_test_pred_all = np.mean(y_test_pred_all, axis=0)
+
         submit_df = pd.DataFrame(self.id)
-        submit_df[""] = y_test_pred_all
+        submit_df["Transported"] = y_test_pred_all
         print(submit_df)
         print(self.train.columns)
         self.train.to_csv("train_feature.csv", index=False)
