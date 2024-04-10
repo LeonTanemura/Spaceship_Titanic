@@ -13,15 +13,9 @@ python main.py
 ```
 
 ## 手順
-- リポジトリ作成からコミットまで
+- clone方法
 ```bash
 git clone URL
-```
-```bash
-git add .
-``` 
-```bash
-git commit -m "first commit"
 ```
 
 - poetry作成
@@ -46,6 +40,33 @@ poetry add lightgbm
 ```
 ```bash
 poetry update
+```
+
+- git 使い方
+
+自分のブランチで作業する。
+ブランチの作成方法
+```bash
+git branch "branch-name"
+git checkout "branch-name"
+```
+
+コミットまで
+```bash
+git add "filename"
+git commit -m "メッセージ"
+git push origin "branch-name"
+```
+
+このタイミングでプルリクを出す
+
+プルリクが通った後、
+pullやり方
+```bash
+git checkout main
+git pull origin main --rebase
+git checkout "branch-name"
+git pull origin main
 ```
 
 - DATA
