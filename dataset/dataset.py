@@ -21,13 +21,24 @@ logger = logging.getLogger(__name__)
 # Modified by somaonishi and shoyameguro.
 class TabularDataFrame(object):
     columns = [
-        "",
-        "",
+        "PassengerID",
+        "HomePlanet",
+        "CryoSleep",
+        "Cabin",
+        "Destination",
+        "Age",
+        "VIP",
+        "RoomService",
+        "FoodCourt",
+        "ShoppingMall",
+        "Spa",
+        "VRDeck",
+        "Name",
     ]
     continuous_columns = []
     categorical_columns = []
     binary_columns = []
-    target_column = ""
+    target_column = "Transported"
 
     def __init__(
         self,
@@ -48,7 +59,7 @@ class TabularDataFrame(object):
 
         self.train = pd.read_csv(to_absolute_path("datasets/train.csv"))
         self.test = pd.read_csv(to_absolute_path("datasets/test.csv"))
-        self.id = self.test[""]
+        self.id = self.test["PassengerId"]
 
         self.train = self.train[self.columns + [self.target_column]]
         self.test = self.test[self.columns]
