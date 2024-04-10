@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 # Modified by somaonishi and shoyameguro.
 class TabularDataFrame(object):
     columns = [
-        "PassengerID",
+        "PassengerId",
         "HomePlanet",
         "CryoSleep",
         "Cabin",
@@ -177,12 +177,20 @@ class TabularDataFrame(object):
 
 class V0(TabularDataFrame):
     continuous_columns = [
-        "",
-        "",
+        "Age",
+        "RoomService",
+        "FoodCourt",
+        "ShoppingMall",
+        "Spa",
+        "VRDeck",
     ]
     categorical_columns = [
-        "",
-        "",
+        "HomePlanet",
+        "CryoSleep",
+        "Cabin",
+        "Destination",
+        "VIP",
+        "Name",
     ]
 
     def __init__(self, **kwargs) -> None:
