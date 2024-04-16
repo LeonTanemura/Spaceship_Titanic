@@ -33,7 +33,7 @@ class TabularDataFrame(object):
         "ShoppingMall",
         "Spa",
         "VRDeck",
-        "Name",
+        # "Name",
     ]
     continuous_columns = []
     categorical_columns = []
@@ -174,6 +174,35 @@ class TabularDataFrame(object):
 
         return categories_dict
 
+    def cabin_label(self):
+        data = pd.concat([self.train, self.test])
+        data['CabinLabel'] = "U-U"
+        data.loc[(data['Cabin'].str.match('^A.*P$')), 'CabinLabel'] = "A-P"
+        data.loc[(data['Cabin'].str.match('^A.*S$')), 'CabinLabel'] = "A-S"
+        data.loc[(data['Cabin'].str.match('^B.*P$')), 'CabinLabel'] = "B-P"
+        data.loc[(data['Cabin'].str.match('^B.*S$')), 'CabinLabel'] = "B-S"
+        data.loc[(data['Cabin'].str.match('^C.*P$')), 'CabinLabel'] = "C-P"
+        data.loc[(data['Cabin'].str.match('^C.*S$')), 'CabinLabel'] = "C-S"
+        data.loc[(data['Cabin'].str.match('^D.*P$')), 'CabinLabel'] = "D-P"
+        data.loc[(data['Cabin'].str.match('^D.*S$')), 'CabinLabel'] = "D-S"
+        data.loc[(data['Cabin'].str.match('^E.*P$')), 'CabinLabel'] = "E-P"
+        data.loc[(data['Cabin'].str.match('^E.*S$')), 'CabinLabel'] = "E-S"
+        data.loc[(data['Cabin'].str.match('^F.*P$')), 'CabinLabel'] = "F-P"
+        data.loc[(data['Cabin'].str.match('^F.*S$')), 'CabinLabel'] = "F-S"
+        data.loc[(data['Cabin'].str.match('^G.*P$')), 'CabinLabel'] = "G-P"
+        data.loc[(data['Cabin'].str.match('^G.*S$')), 'CabinLabel'] = "G-S"
+
+        data['CabinNum'] = data['Cabin'].str.split("/").str[1]
+        data['CabinNum'] = data['CabinNum'].fillna("9999")  # NaNを"9999"で埋める
+        data['CabinNum'] = data['CabinNum'].astype(float)
+
+        self.categorical_columns.remove('Cabin')
+        data = data.drop(['Cabin'], axis=1)
+        self.categorical_columns.append('CabinLabel')
+        self.continuous_columns.append('CabinNum')
+        self.train = data.iloc[:len(self.train)]
+        self.test = data.iloc[len(self.train):]
+
 
 class V0(TabularDataFrame):
     continuous_columns = [
@@ -190,10 +219,12 @@ class V0(TabularDataFrame):
         "Cabin",
         "Destination",
         "VIP",
-        "Name",
+        # "Name",
     ]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.train = pd.read_csv(to_absolute_path("datasets/train_fix.csv"))
+        self.train[self.target_column] = self.label_encoder.transform(self.train[self.target_column])
         self.test = pd.read_csv(to_absolute_path("datasets/test_fix.csv"))
+        self.cabin_label()
