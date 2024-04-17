@@ -173,7 +173,7 @@ class TabularDataFrame(object):
             categories_dict[categorical_column] = categories.tolist()
 
         return categories_dict
-
+    
     def cabin_label(self):
         data = pd.concat([self.train, self.test])
         data['CabinLabel'] = "U-U"
@@ -203,6 +203,22 @@ class TabularDataFrame(object):
         self.train = data.iloc[:len(self.train)]
         self.test = data.iloc[len(self.train):]
 
+    def passenger_family(self):
+        data = pd.concat([self.train, self.test])
+        data['FamilyLabel'] = '0' 
+        passenger_ids = data["PassengerId"]
+        pre_prefix = None
+        for idx, passid in enumerate(passenger_ids):
+            prefix, suffix = passid.split('_')
+            if pre_prefix is not None and prefix == pre_prefix:
+                data.loc[data['PassengerId']== passid, 'FamilyLabel'] = '1'
+                if suffix == '02':
+                    data.loc[data['PassengerId'] == passenger_ids.iloc[idx-1], 'FamilyLabel'] = '1'
+            pre_prefix = prefix
+
+        self.categorical_columns.append('FamilyLabel')
+        self.train = data.iloc[:len(self.train)]
+        self.test = data.iloc[len(self.train):]
 
 class V0(TabularDataFrame):
     continuous_columns = [
@@ -228,3 +244,4 @@ class V0(TabularDataFrame):
         self.train[self.target_column] = self.label_encoder.transform(self.train[self.target_column])
         self.test = pd.read_csv(to_absolute_path("datasets/test_fix.csv"))
         self.cabin_label()
+        self.passenger_family()
