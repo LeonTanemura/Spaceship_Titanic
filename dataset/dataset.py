@@ -173,7 +173,21 @@ class TabularDataFrame(object):
             categories_dict[categorical_column] = categories.tolist()
 
         return categories_dict
+    
+     def passenger_family(self):
+        family = []
+        data = self.train["PassengerId"]
+        pre_passid = None
+        for item in data:
+            passid = item.split('_')[0]
+            if pre_passid is not None and passid == pre_passid:
+                family.append(1)
+            else:
+                if pre_passid == None:
+                    family.append(0)
+            pre_passid = passid
 
+   
 
 class V0(TabularDataFrame):
     continuous_columns = [
@@ -197,3 +211,19 @@ class V0(TabularDataFrame):
         super().__init__(**kwargs)
         self.train = pd.read_csv(to_absolute_path("datasets/train_fix.csv"))
         self.test = pd.read_csv(to_absolute_path("datasets/test_fix.csv"))
+
+    def passenger_family(self):
+        family = []
+        data = self.train["PassengerId"]
+        pre_passid = None
+        for item in data:
+            passid = item.split('_')[0]
+            if pre_passid is not None and passid == pre_passid:
+                family.append(1)
+            else:
+                if pre_passid == None and 
+                family.append(0)
+            pre_passid = passid
+
+
+
