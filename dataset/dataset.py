@@ -208,7 +208,6 @@ class TabularDataFrame(object):
         data['FamilyLabel'] = '0' 
         passenger_ids = data["PassengerId"]
         pre_prefix = None
-        # pre_suffix = None
         for idx, passid in enumerate(passenger_ids):
             prefix, suffix = passid.split('_')
             if pre_prefix is not None and prefix == pre_prefix:
@@ -216,16 +215,10 @@ class TabularDataFrame(object):
                 if suffix == '02':
                     data.loc[data['PassengerId'] == passenger_ids.iloc[idx-1], 'FamilyLabel'] = '1'
             pre_prefix = prefix
-            # pre_suffix = suffix
 
-        print(data["FamilyLabel"])
         self.categorical_columns.append('FamilyLabel')
         self.train = data.iloc[:len(self.train)]
         self.test = data.iloc[len(self.train):]
-
-
-
-
 
 class V0(TabularDataFrame):
     continuous_columns = [
