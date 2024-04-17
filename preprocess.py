@@ -44,7 +44,7 @@ for target in targets:
     train_test[target] = train_test[target].fillna(value)
 
 # 欠損値特徴量の削除
-targets = []
+targets = ['Name']
 df = df.drop(targets, axis=1)
 
 # 変数の型ごとに欠損値の扱いが異なるため、変数ごとに処理
