@@ -33,7 +33,7 @@ class TabularDataFrame(object):
         "ShoppingMall",
         "Spa",
         "VRDeck",
-        "Name",
+        # "Name",
     ]
     continuous_columns = []
     categorical_columns = []
@@ -174,20 +174,58 @@ class TabularDataFrame(object):
 
         return categories_dict
     
-     def passenger_family(self):
-        family = []
-        data = self.train["PassengerId"]
-        pre_passid = None
-        for item in data:
-            passid = item.split('_')[0]
-            if pre_passid is not None and passid == pre_passid:
-                family.append(1)
-            else:
-                if pre_passid == None:
-                    family.append(0)
-            pre_passid = passid
+    def cabin_label(self):
+        data = pd.concat([self.train, self.test])
+        data['CabinLabel'] = "U-U"
+        data.loc[(data['Cabin'].str.match('^A.*P$')), 'CabinLabel'] = "A-P"
+        data.loc[(data['Cabin'].str.match('^A.*S$')), 'CabinLabel'] = "A-S"
+        data.loc[(data['Cabin'].str.match('^B.*P$')), 'CabinLabel'] = "B-P"
+        data.loc[(data['Cabin'].str.match('^B.*S$')), 'CabinLabel'] = "B-S"
+        data.loc[(data['Cabin'].str.match('^C.*P$')), 'CabinLabel'] = "C-P"
+        data.loc[(data['Cabin'].str.match('^C.*S$')), 'CabinLabel'] = "C-S"
+        data.loc[(data['Cabin'].str.match('^D.*P$')), 'CabinLabel'] = "D-P"
+        data.loc[(data['Cabin'].str.match('^D.*S$')), 'CabinLabel'] = "D-S"
+        data.loc[(data['Cabin'].str.match('^E.*P$')), 'CabinLabel'] = "E-P"
+        data.loc[(data['Cabin'].str.match('^E.*S$')), 'CabinLabel'] = "E-S"
+        data.loc[(data['Cabin'].str.match('^F.*P$')), 'CabinLabel'] = "F-P"
+        data.loc[(data['Cabin'].str.match('^F.*S$')), 'CabinLabel'] = "F-S"
+        data.loc[(data['Cabin'].str.match('^G.*P$')), 'CabinLabel'] = "G-P"
+        data.loc[(data['Cabin'].str.match('^G.*S$')), 'CabinLabel'] = "G-S"
 
-   
+        data['CabinNum'] = data['Cabin'].str.split("/").str[1]
+        data['CabinNum'] = data['CabinNum'].fillna("9999")  # NaNを"9999"で埋める
+        data['CabinNum'] = data['CabinNum'].astype(float)
+
+        self.categorical_columns.remove('Cabin')
+        data = data.drop(['Cabin'], axis=1)
+        self.categorical_columns.append('CabinLabel')
+        self.continuous_columns.append('CabinNum')
+        self.train = data.iloc[:len(self.train)]
+        self.test = data.iloc[len(self.train):]
+
+    def passenger_family(self):
+        data = pd.concat([self.train, self.test])
+        data['FamilyLabel'] = '0' 
+        passenger_ids = data["PassengerId"]
+        pre_prefix = None
+        # pre_suffix = None
+        for idx, passid in enumerate(passenger_ids):
+            prefix, suffix = passid.split('_')
+            if pre_prefix is not None and prefix == pre_prefix:
+                data.loc[data['PassengerId']== passid, 'FamilyLabel'] = '1'
+                if suffix == '02':
+                    data.loc[data['PassengerId'] == passenger_ids.iloc[idx-1], 'FamilyLabel'] = '1'
+            pre_prefix = prefix
+            # pre_suffix = suffix
+
+        print(data["FamilyLabel"])
+        self.categorical_columns.append('FamilyLabel')
+        self.train = data.iloc[:len(self.train)]
+        self.test = data.iloc[len(self.train):]
+
+
+
+
 
 class V0(TabularDataFrame):
     continuous_columns = [
@@ -204,26 +242,13 @@ class V0(TabularDataFrame):
         "Cabin",
         "Destination",
         "VIP",
-        "Name",
+        # "Name",
     ]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.train = pd.read_csv(to_absolute_path("datasets/train_fix.csv"))
+        self.train[self.target_column] = self.label_encoder.transform(self.train[self.target_column])
         self.test = pd.read_csv(to_absolute_path("datasets/test_fix.csv"))
-
-    def passenger_family(self):
-        family = []
-        data = self.train["PassengerId"]
-        pre_passid = None
-        for item in data:
-            passid = item.split('_')[0]
-            if pre_passid is not None and passid == pre_passid:
-                family.append(1)
-            else:
-                if pre_passid == None and 
-                family.append(0)
-            pre_passid = passid
-
-
-
+        self.cabin_label()
+        self.passenger_family()
