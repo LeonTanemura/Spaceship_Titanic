@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import statistics as st
+import random
 
 
 train = pd.read_csv("datasets/train.csv")
@@ -16,6 +17,47 @@ def missing_value_checker(df, name):
     chk_null_tbl = chk_null_tbl.rename(columns={0: "欠損数",1: "欠損割合"})
     print(name)
     print(chk_null_tbl, end="\n\n")
+
+ #  def homeplanet_isnull(self):
+    #     data = self.train
+    #     missing_data = data[data.isnull().any(axis=1)]
+
+    #     missing_data.to_csv(to_absolute_path('datasets/train_isnull.csv'), index=False)
+    #     print(missing_data)
+
+    #     exit()
+
+def homeplanet_missing_value(data):
+
+    selected_columns = data[['PassengerId','HomePlanet','VIP']]
+    pre_prefix = None
+    pre_suffix = None
+    for idx, (passengerid, homeplanet, vip) in selected_columns.iterrows():
+        pre_idx = idx - 1
+        prefix, suffix = passengerid.split('_')
+        pre_homeplanet = data.iloc[pre_idx, 1]
+        if pd.isnull(homeplanet):
+            if prefix == pre_prefix and pre_prefix is not None:
+                data.loc[data['PassengerId']== passengerid, 'HomePlanet'] = pre_homeplanet
+            else:
+                next_idx = idx + 1
+                if next_idx < len(data):
+                    next_passengerid = data.iloc[next_idx, 0]
+                    next_homeplanet = data.iloc[next_idx, 1]
+                    next_prefix, next_suffix = next_passengerid.split('_') 
+                    if next_suffix != '01':
+                        if pd.isnull(next_homeplanet):
+                            data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = random.choice(['Earth', 'Europa', 'Mars'])
+                        else:
+                            data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = next_homeplanet
+                    elif vip:
+                        data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = random.choice(['Europa', 'Mars'])
+                    else:
+                        data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = random.choice(['Earth'])     
+        pre_prefix = prefix
+
+
+print(train['HomePlanet'].value_counts())
 
 missing_value_checker(train_test, "train_test")
 missing_value_checker(train, "train")
@@ -47,6 +89,7 @@ for target in targets:
 targets = ['Name']
 df = df.drop(targets, axis=1)
 
+homeplanet_missing_value(df)
 # 変数の型ごとに欠損値の扱いが異なるため、変数ごとに処理
 for column in df.columns:
     if df[column].dtype=='O':
