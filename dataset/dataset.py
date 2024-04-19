@@ -20,21 +20,7 @@ logger = logging.getLogger(__name__)
 # Copied from https://github.com/pfnet-research/deep-table.
 # Modified by somaonishi and shoyameguro.
 class TabularDataFrame(object):
-    columns = [
-        "PassengerId",
-        "HomePlanet",
-        "CryoSleep",
-        "Cabin",
-        "Destination",
-        "Age",
-        "VIP",
-        "RoomService",
-        "FoodCourt",
-        "ShoppingMall",
-        "Spa",
-        "VRDeck",
-        # "Name",
-    ]
+    columns = []
     continuous_columns = []
     categorical_columns = []
     binary_columns = []
@@ -174,51 +160,6 @@ class TabularDataFrame(object):
 
         return categories_dict
     
-    def cabin_label(self):
-        data = pd.concat([self.train, self.test])
-        data['CabinLabel'] = "U-U"
-        data.loc[(data['Cabin'].str.match('^A.*P$')), 'CabinLabel'] = "A-P"
-        data.loc[(data['Cabin'].str.match('^A.*S$')), 'CabinLabel'] = "A-S"
-        data.loc[(data['Cabin'].str.match('^B.*P$')), 'CabinLabel'] = "B-P"
-        data.loc[(data['Cabin'].str.match('^B.*S$')), 'CabinLabel'] = "B-S"
-        data.loc[(data['Cabin'].str.match('^C.*P$')), 'CabinLabel'] = "C-P"
-        data.loc[(data['Cabin'].str.match('^C.*S$')), 'CabinLabel'] = "C-S"
-        data.loc[(data['Cabin'].str.match('^D.*P$')), 'CabinLabel'] = "D-P"
-        data.loc[(data['Cabin'].str.match('^D.*S$')), 'CabinLabel'] = "D-S"
-        data.loc[(data['Cabin'].str.match('^E.*P$')), 'CabinLabel'] = "E-P"
-        data.loc[(data['Cabin'].str.match('^E.*S$')), 'CabinLabel'] = "E-S"
-        data.loc[(data['Cabin'].str.match('^F.*P$')), 'CabinLabel'] = "F-P"
-        data.loc[(data['Cabin'].str.match('^F.*S$')), 'CabinLabel'] = "F-S"
-        data.loc[(data['Cabin'].str.match('^G.*P$')), 'CabinLabel'] = "G-P"
-        data.loc[(data['Cabin'].str.match('^G.*S$')), 'CabinLabel'] = "G-S"
-
-        data['CabinNum'] = data['Cabin'].str.split("/").str[1]
-        data['CabinNum'] = data['CabinNum'].fillna("9999")  # NaNを"9999"で埋める
-        data['CabinNum'] = data['CabinNum'].astype(float)
-
-        self.categorical_columns.remove('Cabin')
-        data = data.drop(['Cabin'], axis=1)
-        self.categorical_columns.append('CabinLabel')
-        self.continuous_columns.append('CabinNum')
-        self.train = data.iloc[:len(self.train)]
-        self.test = data.iloc[len(self.train):]
-
-    def passenger_family(self):
-        data = pd.concat([self.train, self.test])
-        data['FamilyLabel'] = '0' 
-        passenger_ids = data["PassengerId"]
-        pre_prefix = None
-        for idx, passid in enumerate(passenger_ids):
-            prefix, suffix = passid.split('_')
-            if pre_prefix is not None and prefix == pre_prefix:
-                data.loc[data['PassengerId']== passid, 'FamilyLabel'] = '1'
-                if suffix == '02':
-                    data.loc[data['PassengerId'] == passenger_ids.iloc[idx-1], 'FamilyLabel'] = '1'
-            pre_prefix = prefix
-
-        self.categorical_columns.append('FamilyLabel')
-        self.train = data.iloc[:len(self.train)]
-        self.test = data.iloc[len(self.train):]
 
 class V0(TabularDataFrame):
     continuous_columns = [
@@ -228,14 +169,15 @@ class V0(TabularDataFrame):
         "ShoppingMall",
         "Spa",
         "VRDeck",
+        "CabinNum",
     ]
     categorical_columns = [
         "HomePlanet",
         "CryoSleep",
-        "Cabin",
         "Destination",
         "VIP",
-        # "Name",
+        "CabinLabel",
+        "FamilyLabel",
     ]
 
     def __init__(self, **kwargs) -> None:
@@ -243,5 +185,3 @@ class V0(TabularDataFrame):
         self.train = pd.read_csv(to_absolute_path("datasets/train_fix.csv"))
         self.train[self.target_column] = self.label_encoder.transform(self.train[self.target_column])
         self.test = pd.read_csv(to_absolute_path("datasets/test_fix.csv"))
-        self.cabin_label()
-        self.passenger_family()
