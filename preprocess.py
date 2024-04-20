@@ -44,7 +44,7 @@ def homeplanet_missing_value(data):
                     elif vip:
                         data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = random.choice(['Europa', 'Mars'])
                     else:
-                        data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = random.choice(['Earth'])     
+                        data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = 'Earth'     
         pre_prefix = prefix
 
 missing_value_checker(train_test, "train_test")
