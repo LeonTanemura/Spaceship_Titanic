@@ -38,7 +38,10 @@ def homeplanet_missing_value(data):
                     next_prefix, next_suffix = next_passengerid.split('_') 
                     if next_suffix != '01':
                         if pd.isnull(next_homeplanet):
-                            data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = random.choice(['Earth', 'Europa', 'Mars'])
+                            if vip:
+                                data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = random.choice(['Europa', 'Mars'])
+                            else:
+                                data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = 'Earth'
                         else:
                             data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = next_homeplanet
                     elif vip:
