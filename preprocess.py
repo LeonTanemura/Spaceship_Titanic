@@ -18,15 +18,6 @@ def missing_value_checker(df, name):
     print(name)
     print(chk_null_tbl, end="\n\n")
 
- #  def homeplanet_isnull(self):
-    #     data = self.train
-    #     missing_data = data[data.isnull().any(axis=1)]
-
-    #     missing_data.to_csv(to_absolute_path('datasets/train_isnull.csv'), index=False)
-    #     print(missing_data)
-
-    #     exit()
-
 def homeplanet_missing_value(data):
 
     selected_columns = data[['PassengerId','HomePlanet','VIP']]
@@ -55,9 +46,6 @@ def homeplanet_missing_value(data):
                     else:
                         data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = random.choice(['Earth'])     
         pre_prefix = prefix
-
-
-print(train['HomePlanet'].value_counts())
 
 missing_value_checker(train_test, "train_test")
 missing_value_checker(train, "train")
