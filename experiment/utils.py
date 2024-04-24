@@ -106,7 +106,7 @@ def feature_importance(feature_importance_list, columns, name):
 
 def plt_importance(feature_importance, name="importance"):
     feature_importance = feature_importance.sort_values(by='importance', ascending=False)
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(50, 30))
     plt.barh(feature_importance['feature'], feature_importance['importance'], color='skyblue')
     plt.xlabel('Average Importance')
     plt.title('Average Feature Importance')

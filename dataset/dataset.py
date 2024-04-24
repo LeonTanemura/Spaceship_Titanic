@@ -97,6 +97,7 @@ class TabularDataFrame(object):
                     sparse_output=False,
                     feature_name_combiner=feature_name_combiner,
                     dtype=np.int32,
+                    drop="first"
                 ).fit(self.data_cate)
             else:
                 raise ValueError(self.categorical_encoder)
@@ -169,6 +170,7 @@ class V0(TabularDataFrame):
         "ShoppingMall",
         "Spa",
         "VRDeck",
+        # "MoneyTotal",
         "CabinNum",
     ]
     categorical_columns = [
@@ -176,12 +178,50 @@ class V0(TabularDataFrame):
         "CryoSleep",
         "Destination",
         "VIP",
-        "CabinLabel",
+        # "CabinLabel",
+        "CabinLabelLeft",
+        "CabinLabelRight",
         "FamilyLabel",
     ]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.train = pd.read_csv(to_absolute_path("datasets/train_fix.csv"))
+        self.train = pd.read_csv(to_absolute_path("datasets/train_fix1.csv"))
         self.train[self.target_column] = self.label_encoder.transform(self.train[self.target_column])
-        self.test = pd.read_csv(to_absolute_path("datasets/test_fix.csv"))
+        self.test = pd.read_csv(to_absolute_path("datasets/test_fix1.csv"))
+
+class V1(TabularDataFrame):
+    continuous_columns = [
+        "Age",
+        "RoomService",
+        "FoodCourt",
+        "ShoppingMall",
+        "Spa",
+        "VRDeck",
+        # "MoneyTotal",
+    ]
+    categorical_columns = [
+        "HomePlanet",
+        "CryoSleep",
+        "Destination",
+        # "VIP",
+        "CabinLabelLeft",
+        "CabinLabelRight",
+        "FamilyLabel",
+        # "RoomSize",
+        "CabinRegion1",
+        "CabinRegion2",
+        "CabinRegion3",
+        "CabinRegion4",
+        "CabinRegion5",
+        "CabinRegion6",
+        "CabinRegion7",
+        # "FamilySize",
+        "MoneyLabel",
+    ]
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.train = pd.read_csv(to_absolute_path("datasets/train_fix1.csv"))
+        self.train[self.target_column] = self.label_encoder.transform(self.train[self.target_column])
+        self.test = pd.read_csv(to_absolute_path("datasets/test_fix1.csv"))
