@@ -17,48 +17,6 @@ def missing_value_checker(df, name):
     print(name)
     print(chk_null_tbl, end="\n\n")
 
-missing_value_checker(train_test, "train_test")
-missing_value_checker(train, "train")
-missing_value_checker(test, "test")
-
-# 欠損値の補完(train)
-df = train_test
-print(df.info())
-
-# 補完するターゲットの設定
-targets = []
-# mode(最頻値), mean(平均値), median(中央値)
-val_name = "mode"
-
-for target in targets:
-    if val_name == "mode":
-        value = st.mode(df[target])
-    elif val_name == "mean":
-        value = st.mean(df[target])
-    elif val_name == "median":
-        value = st.median(df[target])
-    else:
-        raise ValueError("Invalid value name. Please specify 'mode', 'mean', or 'median'.")
-    
-    # 欠損値を補完
-    train_test[target] = train_test[target].fillna(value)
-
-# 欠損値特徴量の削除
-targets = ['Name']
-df = df.drop(targets, axis=1)
-
-# 変数の型ごとに欠損値の扱いが異なるため、変数ごとに処理
-for column in df.columns:
-    if df[column].dtype=='O':
-        df[column] = df[column].fillna('Unknown')
-    elif df[column].dtype=='int64':
-        df[column] = df[column].fillna(0)
-    elif df[column].dtype=='float64':
-        df[column] = df[column].fillna(0.0)
-    else:
-        raise ValueError("Unsupported dtype encountered. Program terminated.")
-
-# 以下は特徴量の作成
 def cabin_label(data):
     data['CabinLabel'] = "U-U"
     data.loc[(data['Cabin'].str.match('^A.*P$')), 'CabinLabel'] = "A-P"
@@ -75,12 +33,56 @@ def cabin_label(data):
     data.loc[(data['Cabin'].str.match('^F.*S$')), 'CabinLabel'] = "F-S"
     data.loc[(data['Cabin'].str.match('^G.*P$')), 'CabinLabel'] = "G-P"
     data.loc[(data['Cabin'].str.match('^G.*S$')), 'CabinLabel'] = "G-S"
+    data.loc[(data['Cabin'].str.match('^T.*P$')), 'CabinLabel'] = "T-P"
+    data.loc[(data['Cabin'].str.match('^T.*S$')), 'CabinLabel'] = "T-S"
 
     data['CabinNum'] = data['Cabin'].str.split("/").str[1]
     data['CabinNum'] = data['CabinNum'].fillna("9999")  # NaNを"9999"で埋める
     data['CabinNum'] = data['CabinNum'].astype(float)
 
     data = data.drop(['Cabin'], axis=1)
+    return data
+
+def cabin_label2(data):
+    data['CabinLabelLeft'] = "U"
+    data['CabinLabelRight'] = "U"
+    data.loc[(data['Cabin'].str.match('^A.*')), 'CabinLabelLeft'] = "A"
+    data.loc[(data['Cabin'].str.match('^B.*')), 'CabinLabelLeft'] = "B"
+    data.loc[(data['Cabin'].str.match('^C.*')), 'CabinLabelLeft'] = "C"
+    data.loc[(data['Cabin'].str.match('^D.*')), 'CabinLabelLeft'] = "D"
+    data.loc[(data['Cabin'].str.match('^E.*')), 'CabinLabelLeft'] = "E"
+    data.loc[(data['Cabin'].str.match('^F.*')), 'CabinLabelLeft'] = "F"
+    data.loc[(data['Cabin'].str.match('^G.*')), 'CabinLabelLeft'] = "G"
+    data.loc[(data['Cabin'].str.match('^T.*')), 'CabinLabelLeft'] = "T"
+
+    data.loc[(data['Cabin'].str.match('.*S$')), 'CabinLabelRight'] = "S"
+    data.loc[(data['Cabin'].str.match('.*P$')), 'CabinLabelRight'] = "P"
+
+    data['CabinNum'] = data['Cabin'].str.split("/").str[1]
+    data['CabinNum'] = data['CabinNum'].fillna("9999")  # NaNを"9999"で埋める
+    data['CabinNum'] = data['CabinNum'].astype(float)
+    data['CabinRegion1'] = (data['CabinNum'] < 300).astype(int)
+    data['CabinRegion2'] = ((data['CabinNum'] >= 300) & (data['CabinNum'] < 600)).astype(int)
+    data['CabinRegion3'] = ((data['CabinNum'] >= 600) & (data['CabinNum'] < 900)).astype(int)
+    data['CabinRegion4'] = ((data['CabinNum'] >= 900) & (data['CabinNum'] < 1200)).astype(int)
+    data['CabinRegion5'] = ((data['CabinNum'] >= 1200) & (data['CabinNum'] < 1500)).astype(int)
+    data['CabinRegion6'] = ((data['CabinNum'] >= 1500) & (data['CabinNum'] < 1800)).astype(int)
+    data['CabinRegion7'] = ((data['CabinNum'] >= 1800) & (data['CabinNum'] < 2000)).astype(int)
+
+    data = data.drop(['Cabin'], axis=1)
+    data = data.drop(['CabinNum'], axis=1) 
+    return data
+
+def cabin_completion(data):
+    for _, group in df.groupby('RoomNum'):
+        missing_cabins = group[group['Cabin'].isnull()]
+        if not missing_cabins.empty:
+            non_null_cabins = group.dropna(subset=['Cabin'])
+            if not non_null_cabins.empty:
+                cabin_to_fill = non_null_cabins.iloc[0]['Cabin']
+                data.loc[missing_cabins.index, 'Cabin'] = cabin_to_fill
+
+    data['Cabin'] = data['Cabin'].fillna('Unknown')
     return data
 
 def passenger_family(data):
@@ -97,10 +99,89 @@ def passenger_family(data):
 
     return data
 
-# --------------------------------------------------------------------------------
-df = cabin_label(df)
-df = passenger_family(df)
+def surname(data):
+    data['Name'] = data['Name'].fillna('Unknown Unknown')
+    data['Surname'] = data['Name'].str.split().str[-1]
+    data['FamilySize'] = data['Surname'].map(lambda x: data['Surname'].value_counts()[x])
+    data.loc[data['Surname'] == 'Unknown','Surname']=np.nan
+    data.loc[data['FamilySize'] > 100,'FamilySize']=np.nan
+    data = data.drop(['Name'], axis=1)
+    return data
 
+def room_number(data):
+    data['RoomNum'] = data['PassengerId'].apply(lambda x: x.split('_')[0]).astype(int)
+    data['RoomSize'] = data['RoomNum'].map(lambda x: data['RoomNum'].value_counts()[x])
+    return data
+
+# --------------------------------------------------------------------------------
+# 欠損値割合チェック
+missing_value_checker(train_test, "train_test")
+
+# 欠損値の補完
+df = train_test
+
+df = room_number(df)
+df = cabin_completion(df)
+df = cabin_label2(df)
+df = passenger_family(df)
+df = surname(df)
+
+
+targets = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
+df.loc[df['CryoSleep'] == True, targets] = 0
+df['MoneyTotal'] = df[targets].sum(axis=1)
+df['MoneyLabel'] = np.where(df['MoneyTotal'] != 0, 1, 0)
+df.loc[df['MoneyTotal'] != 0, 'CryoSleep'] = False
+df.loc[df['HomePlanet'].isnull() & (df['MoneyTotal'] > 10000), 'HomePlanet'] = "Europa"
+
+df.loc[(df['MoneyTotal'] == 0) & (df['FamilyLabel'] == "0"), 'CryoSleep'] = True
+
+targets = ["A", "B", "C", "T"]
+for target in targets:
+    df.loc[(df['HomePlanet'].isnull()) & (df['CabinLabelLeft'].str.contains(target)), 'HomePlanet'] = "Europa"
+targets = ["F"]
+for target in targets:
+    df.loc[(df['HomePlanet'].isnull()) & (df['CabinLabelLeft'].str.contains(target)) & (df['CryoSleep'] == True), 'HomePlanet'] = "Mars"
+targets = ["G"]
+for target in targets:
+    df.loc[(df['HomePlanet'].isnull()) & (df['CabinLabelLeft'].str.contains(target)), 'HomePlanet'] = "Earth"
+
+df.loc[df['HomePlanet'] == "Earth", 'VIP'] = False
+
+
+missing_value_checker(df, "dataset")
+print(df.info())
+df['CryoSleep'] = df['CryoSleep'].fillna("True")
+pd.set_option('future.no_silent_downcasting', True)
+targets = ['HomePlanet', 'VIP', 'Destination']
+for target in targets:
+    value = df[target].mode().iloc[0]
+    df[target] = df[target].fillna(value)
+
+targets = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall',  'VRDeck', 'Spa']
+for target in targets:
+    value = np.nanmean(df[target])
+    # value = np.nanmedian(df[target])
+    df[target] = df[target].fillna(value)
+missing_value_checker(df, "dataset")
+
+
+# for column in df.columns:
+#     if df[column].dtype=='O':
+#         df[column] = df[column].fillna('Unknown')
+#     elif df[column].dtype=='int64':
+#         df[column] = df[column].fillna(0)
+#     elif df[column].dtype=='float64':
+#         df[column] = df[column].fillna(0.0)
+#     else:
+#         raise ValueError("Unsupported dtype encountered. Program terminated.")
+
+df.to_csv('datasets/concat_fix.csv', index=False)
+
+targets = ['RoomNum', 'Surname', 'FamilySize', 'RoomSize', 'MoneyTotal', 'VIP']
+df = df.drop(targets, axis=1)
+missing_value_checker(df, "dataset")
+print(df.info())
 train_test = df
 
 # trainとtestに再分割
@@ -108,9 +189,6 @@ train = train_test.iloc[:len(train)]
 test = train_test.iloc[len(train):]
 test = test.drop('Transported', axis=1)
 
-print(train.info())
-print(test.info())
-
 # csvファイルの作成
-train.to_csv('datasets/train_fix.csv', index=False)
-test.to_csv('datasets/test_fix.csv', index=False)
+train.to_csv('datasets/train_fix1.csv', index=False)
+test.to_csv('datasets/test_fix1.csv', index=False)
