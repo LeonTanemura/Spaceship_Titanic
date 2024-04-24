@@ -18,8 +18,6 @@ def missing_value_checker(df, name):
     print(name)
     print(chk_null_tbl, end="\n\n")
 
-<<<<<<< HEAD
-=======
 def homeplanet_missing_value(data):
 
     selected_columns = data[['PassengerId','HomePlanet','VIP']]
@@ -52,50 +50,6 @@ def homeplanet_missing_value(data):
                         data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = 'Earth'     
         pre_prefix = prefix
 
-missing_value_checker(train_test, "train_test")
-missing_value_checker(train, "train")
-missing_value_checker(test, "test")
-
-# 欠損値の補完(train)
-df = train_test
-print(df.info())
-
-# 補完するターゲットの設定
-targets = []
-# mode(最頻値), mean(平均値), median(中央値)
-val_name = "mode"
-
-for target in targets:
-    if val_name == "mode":
-        value = st.mode(df[target])
-    elif val_name == "mean":
-        value = st.mean(df[target])
-    elif val_name == "median":
-        value = st.median(df[target])
-    else:
-        raise ValueError("Invalid value name. Please specify 'mode', 'mean', or 'median'.")
-    
-    # 欠損値を補完
-    train_test[target] = train_test[target].fillna(value)
-
-# 欠損値特徴量の削除
-targets = ['Name']
-df = df.drop(targets, axis=1)
-
-homeplanet_missing_value(df)
-# 変数の型ごとに欠損値の扱いが異なるため、変数ごとに処理
-for column in df.columns:
-    if df[column].dtype=='O':
-        df[column] = df[column].fillna('Unknown')
-    elif df[column].dtype=='int64':
-        df[column] = df[column].fillna(0)
-    elif df[column].dtype=='float64':
-        df[column] = df[column].fillna(0.0)
-    else:
-        raise ValueError("Unsupported dtype encountered. Program terminated.")
-
-# 以下は特徴量の作成
->>>>>>> main
 def cabin_label(data):
     data['CabinLabel'] = "U-U"
     data.loc[(data['Cabin'].str.match('^A.*P$')), 'CabinLabel'] = "A-P"
@@ -204,6 +158,8 @@ df = cabin_completion(df)
 df = cabin_label2(df)
 df = passenger_family(df)
 df = surname(df)
+
+homeplanet_missing_value(df)
 
 
 targets = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
