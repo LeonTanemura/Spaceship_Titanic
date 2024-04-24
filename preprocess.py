@@ -50,6 +50,7 @@ def homeplanet_missing_value(data):
                         data.loc[data['PassengerId'] == passengerid, 'HomePlanet'] = 'Earth'     
         pre_prefix = prefix
 
+
 def cabin_label(data):
     data['CabinLabel'] = "U-U"
     data.loc[(data['Cabin'].str.match('^A.*P$')), 'CabinLabel'] = "A-P"
