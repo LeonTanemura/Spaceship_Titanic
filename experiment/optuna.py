@@ -43,11 +43,11 @@ def lightgbm_config(trial: optuna.Trial, model_config, name=""):
 
 def catboost_config(trial: optuna.Trial, model_config, name=""):
     model_config.depth = trial.suggest_int("depth", 3, 10)
-    # model_config.learning_rate = trial.suggest_float("learning_rate", 0.01, 0.3)
+    model_config.learning_rate = trial.suggest_float("learning_rate", 1e-5, 1.0)
     model_config.random_strength = trial.suggest_int("random_strength", 0, 100)
     model_config.bagging_temperature = trial.suggest_float("bagging_temperature", 0.01, 100.00, log=True)
-    model_config.od_type = trial.suggest_categorical("od_type", ["IncToDec", "Iter"])
-    model_config.od_wait = trial.suggest_int("od_wait", 10, 50)
+    # model_config.od_type = trial.suggest_categorical("od_type", ["IncToDec", "Iter"])
+    # model_config.od_wait = trial.suggest_int("od_wait", 10, 50)
     return model_config
 
 

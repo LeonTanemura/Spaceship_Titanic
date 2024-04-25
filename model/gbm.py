@@ -114,9 +114,10 @@ class CatBoostClassifier(BaseClassifier):
 
         self.model = cat.CatBoostClassifier(
             loss_function="Logloss",  # 損失関数を設定
-            # early_stopping_rounds=50,
+            early_stopping_rounds=500,
             **model_config,
-            random_seed=seed  # random_seedを設定
+            random_seed=seed,
+            eval_metric="AUC",
         )
 
     def fit(self, X, y, eval_set):
