@@ -220,8 +220,8 @@ for column in df.columns:
 
 df.to_csv('datasets/concat_fix.csv', index=False)
 
-# targets = ['RoomNum', 'Surname', 'FamilySize', 'RoomSize', 'MoneyTotal']
-targets = ['RoomNum', "Name", "FamilyLabel"]
+targets = ['RoomNum', 'Surname', 'FamilySize', "FamilyLabel", "MoneyLabel"]
+# targets = ['RoomNum', 'Surname']
 df = df.drop(targets, axis=1)
 missing_value_checker(df, "dataset")
 print(df.info())

@@ -1,5 +1,6 @@
 import lightgbm as lgb
 import xgboost as xgb
+import catboost as cat
 from sklearn.utils.validation import check_X_y
 
 from .base_model import BaseClassifier, BaseRegressor
@@ -106,3 +107,24 @@ class LightGBMRegressor(BaseRegressor):
         
     def feature_importance(self):
         return self.model.feature_importances_
+
+class CatBoostClassifier(BaseClassifier):
+    def __init__(self, input_dim, output_dim, model_config, verbose, seed=None) -> None:
+        super().__init__(input_dim, output_dim, model_config, verbose)
+
+        self.model = cat.CatBoostClassifier(
+            loss_function="Logloss",  # 損失関数を設定
+            # early_stopping_rounds=50,
+            **model_config,
+            random_seed=seed  # random_seedを設定
+        )
+
+    def fit(self, X, y, eval_set):
+        self._column_names = X.columns
+        X, y = check_X_y(X, y)
+        eval_pool = (eval_set[0], eval_set[1])  # eval_setを適切な形式に変更
+
+        self.model.fit(X, y, eval_set=eval_pool, verbose=self.verbose > 0)
+
+    def feature_importance(self):
+        return self.model.get_feature_importance()

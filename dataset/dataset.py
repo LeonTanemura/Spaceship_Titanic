@@ -238,7 +238,6 @@ class V2(TabularDataFrame):
         # "CabinNum",
         "MoneyTotal",
         # "FamilySize",
-        "RoomSize",
     ]
     categorical_columns = [
         "HomePlanet",
@@ -256,6 +255,7 @@ class V2(TabularDataFrame):
         "CabinRegion6",
         "CabinRegion7",
         # "MoneyLabel",
+        "RoomSize",
     ]
 
     def __init__(self, **kwargs) -> None:

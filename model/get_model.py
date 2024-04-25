@@ -1,6 +1,6 @@
 from experiment.utils import set_seed
 
-from .gbm import LightGBMClassifier, XGBoostClassifier, LightGBMRegressor, XGBoostRegressor
+from .gbm import LightGBMClassifier, XGBoostClassifier, LightGBMRegressor, XGBoostRegressor, CatBoostClassifier
 from .ensemble import XGBLGBMClassifier, XGB10Classifier, XGB7LGBM7Classifier, XGBLRClassifier
 
 
@@ -10,6 +10,8 @@ def get_classifier(name, *, input_dim, output_dim, model_config, seed=42, verbos
         return XGBoostClassifier(input_dim, output_dim, model_config, verbose, seed)
     elif name == "lightgbm":
         return LightGBMClassifier(input_dim, output_dim, model_config, verbose, seed)
+    elif name == "catboost":
+        return CatBoostClassifier(input_dim, output_dim, model_config, verbose, seed)
     elif name == "xgblgbm":
         return XGBLGBMClassifier(input_dim, output_dim, model_config, verbose)
     elif name == "xgb10":
