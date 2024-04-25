@@ -47,8 +47,8 @@ def make_calculate_two_features(train, test, continuous_columns):
 
     feature_columns = df[[
         "RoomService",
-        # "FoodCourt",
-        # "ShoppingMall",
+        "FoodCourt",
+        "ShoppingMall",
         "Spa",
         "VRDeck",
         ]]
@@ -58,14 +58,14 @@ def make_calculate_two_features(train, test, continuous_columns):
         f1, f2 = df[feature1], df[feature2]
 
         # 既存の特徴量操作
-        # new_features.append(f1 + f2)
-        # new_features.append(f1 - f2)
+        new_features.append(f1 + f2)
+        new_features.append(f1 - f2)
         new_features.append(f1 * f2)
         new_features.append(f1 / (f2 + 1e-8))
 
         # # 新しい特徴量操作
-        # new_features.append(calculate_mean(f1, f2))
-        # new_features.append(calculate_median(f1, f2))
+        new_features.append(calculate_mean(f1, f2))
+        new_features.append(calculate_median(f1, f2))
         new_features.append(calculate_q75(f1, f2))
         new_features.append(calculate_q25(f1, f2))
         zscore_f1 = calculate_zscore(
@@ -77,8 +77,8 @@ def make_calculate_two_features(train, test, continuous_columns):
     # カラム名の更新
     new_features_df.columns = [f'{feature1}_{operation}_{feature2}'
                                 for (feature1, feature2) in combinations(feature_columns, 2)
-                                for operation in ['multiplied_by', 'divided_by', 'q75', 'q25', 'zscore_f1']]
-                                # for operation in ['plus', 'minus', 'multiplied_by', 'divided_by', 'mean', 'median', 'q75', 'q25', 'zscore_f1']]
+                                # for operation in ['multiplied_by', 'divided_by', 'q75', 'q25', 'zscore_f1']]
+                                for operation in ['plus', 'minus', 'multiplied_by', 'divided_by', 'mean', 'median', 'q75', 'q25', 'zscore_f1']]
 
     continuous_columns.extend(new_features_df.columns)
     
