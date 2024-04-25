@@ -237,8 +237,7 @@ class V2(TabularDataFrame):
         "VRDeck",
         # "CabinNum",
         "MoneyTotal",
-        "FamilySize",
-        "RoomSize",
+        # "FamilySize",
     ]
     categorical_columns = [
         "HomePlanet",
@@ -247,7 +246,7 @@ class V2(TabularDataFrame):
         "VIP",
         "CabinLabelLeft",
         "CabinLabelRight",
-        "FamilyLabel",
+        # "FamilyLabel",
         "CabinRegion1",
         "CabinRegion2",
         "CabinRegion3",
@@ -255,7 +254,8 @@ class V2(TabularDataFrame):
         "CabinRegion5",
         "CabinRegion6",
         "CabinRegion7",
-        "MoneyLabel",
+        # "MoneyLabel",
+        "RoomSize",
     ]
 
     def __init__(self, **kwargs) -> None:
@@ -263,6 +263,6 @@ class V2(TabularDataFrame):
         self.train = pd.read_csv(to_absolute_path("datasets/train_fix2.csv"))
         self.train[self.target_column] = self.label_encoder.transform(self.train[self.target_column])
         self.test = pd.read_csv(to_absolute_path("datasets/test_fix2.csv"))
-        self.train, self.test, self.continuous_columns = make_calculate_two_features(self.train, self.test, self.continuous_columns)
+        # self.train, self.test, self.continuous_columns = make_calculate_two_features(self.train, self.test, self.continuous_columns)
 
 
