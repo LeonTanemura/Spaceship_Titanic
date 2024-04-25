@@ -3,6 +3,7 @@ import numpy as np
 import statistics as st
 import random
 
+from sklearn.impute import KNNImputer
 
 train = pd.read_csv("datasets/train.csv")
 test = pd.read_csv("datasets/test.csv")
@@ -93,7 +94,7 @@ def cabin_label2(data):
     data.loc[(data['Cabin'].str.match('.*P$')), 'CabinLabelRight'] = "P"
 
     data['CabinNum'] = data['Cabin'].str.split("/").str[1]
-    data['CabinNum'] = data['CabinNum'].fillna("9999")  # NaNを"9999"で埋める
+    data['CabinNum'] = data['CabinNum'].fillna(9999)  # NaNを"9999"で埋める
     data['CabinNum'] = data['CabinNum'].astype(float)
     data['CabinRegion1'] = (data['CabinNum'] < 300).astype(int)
     data['CabinRegion2'] = ((data['CabinNum'] >= 300) & (data['CabinNum'] < 600)).astype(int)
@@ -138,7 +139,7 @@ def surname(data):
     data['Surname'] = data['Name'].str.split().str[-1]
     data['FamilySize'] = data['Surname'].map(lambda x: data['Surname'].value_counts()[x])
     data.loc[data['Surname'] == 'Unknown','Surname']=np.nan
-    data.loc[data['FamilySize'] > 100,'FamilySize']=np.nan
+    data.loc[data['FamilySize'] > 100,'FamilySize']= 0
     data = data.drop(['Name'], axis=1)
     return data
 
@@ -159,8 +160,6 @@ df = cabin_completion(df)
 df = cabin_label2(df)
 df = passenger_family(df)
 df = surname(df)
-
-homeplanet_missing_value(df)
 
 
 targets = ['RoomService', 'FoodCourt', 'ShoppingMall', 'Spa', 'VRDeck']
@@ -184,6 +183,7 @@ for target in targets:
 
 df.loc[df['HomePlanet'] == "Earth", 'VIP'] = False
 
+homeplanet_missing_value(df)
 
 missing_value_checker(df, "dataset")
 print(df.info())
@@ -195,26 +195,33 @@ for target in targets:
     df[target] = df[target].fillna(value)
 
 targets = ['Age', 'RoomService', 'FoodCourt', 'ShoppingMall',  'VRDeck', 'Spa']
-for target in targets:
-    value = np.nanmean(df[target])
-    # value = np.nanmedian(df[target])
-    df[target] = df[target].fillna(value)
-missing_value_checker(df, "dataset")
+imputer=KNNImputer(n_neighbors=5)
+imputer.fit(df[targets])
+df[targets]=imputer.transform(df[targets])
+# for target in targets:
+#     value = np.nanmean(df[target])
+#     df[target] = df[target].fillna(value)
+# missing_value_checker(df, "dataset")
+
+# targets = ['RoomService', 'FoodCourt', 'ShoppingMall',  'VRDeck', 'Spa', "MoneyTotal"]
+# for target in targets:
+#     df[target]=np.log(1+df[target])
 
 
-# for column in df.columns:
-#     if df[column].dtype=='O':
-#         df[column] = df[column].fillna('Unknown')
-#     elif df[column].dtype=='int64':
-#         df[column] = df[column].fillna(0)
-#     elif df[column].dtype=='float64':
-#         df[column] = df[column].fillna(0.0)
-#     else:
-#         raise ValueError("Unsupported dtype encountered. Program terminated.")
+for column in df.columns:
+    if df[column].dtype=='O':
+        df[column] = df[column].fillna('Unknown')
+    elif df[column].dtype=='int64':
+        df[column] = df[column].fillna(0)
+    elif df[column].dtype=='float64':
+        df[column] = df[column].fillna(0.0)
+    else:
+        raise ValueError("Unsupported dtype encountered. Program terminated.")
 
 df.to_csv('datasets/concat_fix.csv', index=False)
 
-targets = ['RoomNum', 'Surname', 'FamilySize', 'RoomSize', 'MoneyTotal', 'VIP']
+# targets = ['RoomNum', 'Surname', 'FamilySize', 'RoomSize', 'MoneyTotal']
+targets = ['RoomNum', "Name", "FamilyLabel"]
 df = df.drop(targets, axis=1)
 missing_value_checker(df, "dataset")
 print(df.info())
@@ -226,5 +233,5 @@ test = train_test.iloc[len(train):]
 test = test.drop('Transported', axis=1)
 
 # csvファイルの作成
-train.to_csv('datasets/train_fix1.csv', index=False)
-test.to_csv('datasets/test_fix1.csv', index=False)
+train.to_csv('datasets/train_fix2.csv', index=False)
+test.to_csv('datasets/test_fix2.csv', index=False)

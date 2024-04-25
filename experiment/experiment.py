@@ -153,7 +153,7 @@ class ExpBase:
                 f"[{self.model_name} results] ACC: {(final_score['ACC']/self.n_splits)} | AUC: {(final_score['AUC']/self.n_splits)} | "
                 f"F1: {(final_score['F1']/self.n_splits)}"
             )
-            # feature_importance(feature_importance_list, self.columns, self.model_name)
+            feature_importance(feature_importance_list, self.columns, self.model_name)
             y_test_pred_all = np.argmax(np.concatenate(y_test_pred_all, axis=1).mean(axis=1), axis=1)
             y_test_pred_all = self.label_encoder.inverse_transform(y_test_pred_all)
         
