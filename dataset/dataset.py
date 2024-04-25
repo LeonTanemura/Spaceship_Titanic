@@ -12,7 +12,7 @@ from sklearn.preprocessing import (
     StandardScaler,
 )
 
-from .utils import feature_name_combiner
+from .utils import feature_name_combiner, make_calculate_two_features
 
 logger = logging.getLogger(__name__)
 
@@ -178,17 +178,17 @@ class V0(TabularDataFrame):
         "CryoSleep",
         "Destination",
         "VIP",
-        # "CabinLabel",
-        "CabinLabelLeft",
-        "CabinLabelRight",
+        "CabinLabel",
+        # "CabinLabelLeft",
+        # "CabinLabelRight",
         "FamilyLabel",
     ]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.train = pd.read_csv(to_absolute_path("datasets/train_fix1.csv"))
+        self.train = pd.read_csv(to_absolute_path("datasets/train_fix.csv"))
         self.train[self.target_column] = self.label_encoder.transform(self.train[self.target_column])
-        self.test = pd.read_csv(to_absolute_path("datasets/test_fix1.csv"))
+        self.test = pd.read_csv(to_absolute_path("datasets/test_fix.csv"))
 
 class V1(TabularDataFrame):
     continuous_columns = [
@@ -198,17 +198,19 @@ class V1(TabularDataFrame):
         "ShoppingMall",
         "Spa",
         "VRDeck",
-        # "MoneyTotal",
+        "CabinNum",
+        "MoneyTotal",
+        "FamilySize",
+        "RoomSize",
     ]
     categorical_columns = [
         "HomePlanet",
         "CryoSleep",
         "Destination",
-        # "VIP",
+        "VIP",
         "CabinLabelLeft",
         "CabinLabelRight",
-        "FamilyLabel",
-        # "RoomSize",
+        # "FamilyLabel",
         "CabinRegion1",
         "CabinRegion2",
         "CabinRegion3",
@@ -216,7 +218,6 @@ class V1(TabularDataFrame):
         "CabinRegion5",
         "CabinRegion6",
         "CabinRegion7",
-        # "FamilySize",
         "MoneyLabel",
     ]
 
@@ -225,3 +226,43 @@ class V1(TabularDataFrame):
         self.train = pd.read_csv(to_absolute_path("datasets/train_fix1.csv"))
         self.train[self.target_column] = self.label_encoder.transform(self.train[self.target_column])
         self.test = pd.read_csv(to_absolute_path("datasets/test_fix1.csv"))
+
+class V2(TabularDataFrame):
+    continuous_columns = [
+        "Age",
+        "RoomService",
+        "FoodCourt",
+        "ShoppingMall",
+        "Spa",
+        "VRDeck",
+        # "CabinNum",
+        "MoneyTotal",
+        # "FamilySize",
+        "RoomSize",
+    ]
+    categorical_columns = [
+        "HomePlanet",
+        "CryoSleep",
+        "Destination",
+        "VIP",
+        "CabinLabelLeft",
+        "CabinLabelRight",
+        # "FamilyLabel",
+        "CabinRegion1",
+        "CabinRegion2",
+        "CabinRegion3",
+        "CabinRegion4",
+        "CabinRegion5",
+        "CabinRegion6",
+        "CabinRegion7",
+        # "MoneyLabel",
+    ]
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.train = pd.read_csv(to_absolute_path("datasets/train_fix2.csv"))
+        self.train[self.target_column] = self.label_encoder.transform(self.train[self.target_column])
+        self.test = pd.read_csv(to_absolute_path("datasets/test_fix2.csv"))
+        # self.train, self.test, self.continuous_columns = make_calculate_two_features(self.train, self.test, self.continuous_columns)
+
+
