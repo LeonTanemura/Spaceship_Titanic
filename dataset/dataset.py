@@ -265,4 +265,49 @@ class V2(TabularDataFrame):
         self.test = pd.read_csv(to_absolute_path("datasets/test_fix2.csv"))
         # self.train, self.test, self.continuous_columns = make_calculate_two_features(self.train, self.test, self.continuous_columns)
 
+class V3(TabularDataFrame):
+    continuous_columns = [
+        # "Age",
+        "RoomService",
+        "FoodCourt",
+        "ShoppingMall",
+        "Spa",
+        "VRDeck",
+        # "CabinNum",
+        "MoneyTotal",
+        "FamilySize",
+    ]
+    categorical_columns = [
+        "HomePlanet",
+        "CryoSleep",
+        "Destination",
+        "VIP",
+        "CabinLabelLeft",
+        "CabinLabelRight",
+        # "FamilyLabel",
+        "CabinRegion1",
+        "CabinRegion2",
+        "CabinRegion3",
+        "CabinRegion4",
+        "CabinRegion5",
+        "CabinRegion6",
+        "CabinRegion7",
+        # "MoneyLabel",
+        "RoomSize",
+        "Age0",
+        "Age1-4",
+        "Age5-12",
+        "Age13-17",
+        "Age18-39",
+        "Age40-48",
+        "Age49-58",
+        "Age59-",
+    ]
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.train = pd.read_csv(to_absolute_path("datasets/train_fix3.csv"))
+        self.train[self.target_column] = self.label_encoder.transform(self.train[self.target_column])
+        self.test = pd.read_csv(to_absolute_path("datasets/test_fix3.csv"))
+        # self.train, self.test, self.continuous_columns = make_calculate_two_features(self.train, self.test, self.continuous_columns)
 

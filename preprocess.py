@@ -108,6 +108,18 @@ def cabin_label2(data):
     data = data.drop(['CabinNum'], axis=1) 
     return data
 
+def age_label(data):
+    data['Age0'] = (data['Age'] == 0).astype(int)
+    data['Age1-4'] = ((data['Age'] >= 1) & (data['Age'] < 5)).astype(int)
+    data['Age5-12'] = ((data['Age'] >= 5) & (data['Age'] < 13)).astype(int)
+    data['Age13-17'] = ((data['Age'] >= 13) & (data['Age'] < 18)).astype(int)
+    data['Age18-39'] = ((data['Age'] >= 18) & (data['Age'] < 40)).astype(int)
+    data['Age40-48'] = ((data['Age'] >= 40) & (data['Age'] < 49)).astype(int)
+    data['Age49-58'] = ((data['Age'] >= 49) & (data['Age'] < 59)).astype(int)
+    data['Age59-'] = ((data['Age'] >= 59) & (data['Age'] < 100)).astype(int)
+
+    return data
+
 def cabin_completion(data):
     for _, group in df.groupby('RoomNum'):
         missing_cabins = group[group['Cabin'].isnull()]
@@ -218,9 +230,11 @@ for column in df.columns:
     else:
         raise ValueError("Unsupported dtype encountered. Program terminated.")
 
+df = age_label(df)
+
 df.to_csv('datasets/concat_fix.csv', index=False)
 
-targets = ['RoomNum', 'Surname', 'FamilySize', "FamilyLabel", "MoneyLabel"]
+targets = ['RoomNum', 'Surname', "FamilyLabel", "MoneyLabel", "Age",]
 # targets = ['RoomNum', 'Surname']
 df = df.drop(targets, axis=1)
 missing_value_checker(df, "dataset")
@@ -233,5 +247,5 @@ test = train_test.iloc[len(train):]
 test = test.drop('Transported', axis=1)
 
 # csvファイルの作成
-train.to_csv('datasets/train_fix2.csv', index=False)
-test.to_csv('datasets/test_fix2.csv', index=False)
+train.to_csv('datasets/train_fix3.csv', index=False)
+test.to_csv('datasets/test_fix3.csv', index=False)
