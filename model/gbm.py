@@ -115,6 +115,7 @@ class CatBoostClassifier(BaseClassifier):
         self.model = cat.CatBoostClassifier(
             loss_function="Logloss",  # 損失関数を設定
             early_stopping_rounds=500,
+            # early_stopping_rounds=50, #optunaはこっち
             **model_config,
             random_seed=seed,
             eval_metric="AUC",
