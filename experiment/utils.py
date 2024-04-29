@@ -99,6 +99,23 @@ def feature_importance(feature_importance_list, columns, name):
         lgbm_feature_importance = pd.DataFrame({'feature': columns, 'importance': lgbm_average_importance})
         plt_importance(xgb_feature_importance, "xgb_importance")
         plt_importance(lgbm_feature_importance, "lgbm_importance")
+    elif name == "xgblgbmcat":
+        xgb_feature_importance_list = []
+        lgbm_feature_importance_list = []
+        cat_feature_importance_list = []
+        for i in range(len(feature_importance_list)):
+            xgb_feature_importance_list.append(feature_importance_list[i][0])
+            lgbm_feature_importance_list.append(feature_importance_list[i][1])
+            cat_feature_importance_list.append(feature_importance_list[i][2])
+        xgb_average_importance = np.mean(xgb_feature_importance_list, axis=0)
+        lgbm_average_importance = np.mean(lgbm_feature_importance_list, axis=0)
+        cat_average_importance = np.mean(cat_feature_importance_list, axis=0)
+        xgb_feature_importance = pd.DataFrame({'feature': columns, 'importance': xgb_average_importance})
+        lgbm_feature_importance = pd.DataFrame({'feature': columns, 'importance': lgbm_average_importance})
+        cat_feature_importance = pd.DataFrame({'feature': columns, 'importance': cat_average_importance})
+        plt_importance(xgb_feature_importance, "xgb_importance")
+        plt_importance(lgbm_feature_importance, "lgbm_importance")
+        plt_importance(cat_feature_importance, "cat_importance")
     else:
         average_importance = np.mean(feature_importance_list, axis=0)
         feature_importance = pd.DataFrame({'feature': columns, 'importance': average_importance})

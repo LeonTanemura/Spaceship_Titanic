@@ -1,7 +1,7 @@
 from experiment.utils import set_seed
 
 from .gbm import LightGBMClassifier, XGBoostClassifier, LightGBMRegressor, XGBoostRegressor, CatBoostClassifier
-from .ensemble import XGBLGBMClassifier, XGB10Classifier, XGB7LGBM7Classifier, XGBLRClassifier
+from .ensemble import XGBLGBMClassifier, XGB10Classifier, XGB7LGBM7Classifier, XGBLRClassifier, XGBLGBMCATClassifier, CATSEEDClassifier, CATLRClassifier
 
 
 def get_classifier(name, *, input_dim, output_dim, model_config, seed=42, verbose=0):
@@ -20,6 +20,12 @@ def get_classifier(name, *, input_dim, output_dim, model_config, seed=42, verbos
         return XGB7LGBM7Classifier(input_dim, output_dim, model_config, verbose)
     elif name == "xgblr":
         return XGBLRClassifier(input_dim, output_dim, model_config, verbose)
+    elif name == "xgblgbmcat":
+        return XGBLGBMCATClassifier(input_dim, output_dim, model_config, verbose)
+    elif name == "catseed":
+        return CATSEEDClassifier(input_dim, output_dim, model_config, verbose)
+    elif name == "catlr":
+        return CATLRClassifier(input_dim, output_dim, model_config, verbose)
     else:
         raise KeyError(f"{name} is not defined.")
 
