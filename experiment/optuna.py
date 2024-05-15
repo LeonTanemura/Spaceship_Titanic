@@ -46,8 +46,6 @@ def catboost_config(trial: optuna.Trial, model_config, name=""):
     model_config.learning_rate = trial.suggest_float("learning_rate", 1e-5, 1.0)
     model_config.random_strength = trial.suggest_int("random_strength", 0, 100)
     model_config.bagging_temperature = trial.suggest_float("bagging_temperature", 0.01, 100.00, log=True)
-    # model_config.od_type = trial.suggest_categorical("od_type", ["IncToDec", "Iter"])
-    # model_config.od_wait = trial.suggest_int("od_wait", 10, 50)
     return model_config
 
 
@@ -249,5 +247,9 @@ class OptimParam:
         study.optimize(self.objective, n_trials=n_trials, n_jobs=self.n_jobs)
         self.plot_param_importances(study)
         self.plot_optimization_history(study)
+        best_params = study.best_params
+        logger.info("Best parameters found:")
+        for param, value in best_params.items():
+            logger.info(f"{param}: {value}")
         update_model_cofig(self.default_config, study.best_params)
         return self.default_config

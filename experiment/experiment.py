@@ -232,3 +232,83 @@ class ExpOptuna(ExpBase):
             task = self.task
         )
         return op.get_best_config()
+
+class ExpOptunaOnly(ExpBase):
+    def __init__(self, config):
+        super().__init__(config)
+        self.n_trials = config.exp.n_trials
+        self.n_startup_trials = config.exp.n_startup_trials
+
+        self.storage = config.exp.storage
+        self.study_name = config.exp.study_name
+        self.cv = config.exp.cv
+        self.n_jobs = config.exp.n_jobs
+
+    def run(self):
+        if self.exp_config.delete_study:
+            for i in range(self.n_splits):
+                optuna.delete_study(
+                    study_name=f"{self.exp_config.study_name}_{i}",
+                    storage=f"sqlite:///{to_absolute_path(self.exp_config.storage)}/optuna.db",
+                )
+                print(f"delete successful in {i}")
+            return
+
+        train_size = int(len(self.train) * 0.8)
+        train_data, val_data = self.train.iloc[:train_size], self.train.iloc[train_size:]
+        x, y = self.get_x_y(train_data)
+        best_config = self.get_model_config(x=x, y=y, val_data=val_data)
+
+        # Train a model using the best hyperparameters
+        model = get_classifier(  # or get_regressor depending on task
+            self.model_name,
+            input_dim=self.input_dim,
+            output_dim=self.output_dim,
+            model_config=best_config,
+            verbose=self.exp_config.verbose,
+            seed=self.seed
+        )
+        start = time()
+        model.fit(
+            x,
+            y,
+            eval_set=(val_data[self.columns], val_data[self.target_column].values.squeeze()),
+        )
+        end = time() - start
+        logger.info(f"[Fit {self.model_name}] Time: {end}")
+        score = cal_metrics(model, val_data, self.columns, self.target_column)
+        score.update(model.evaluate(val_data[self.columns], val_data[self.target_column].values.squeeze()))
+        y_test_pred_all = model.predict_proba(self.test[self.columns]).reshape(-1, 1, len(self.label_encoder.classes_))
+        logger.info(
+            f"[{self.model_name} results] ACC: {score['ACC']} | AUC: {score['AUC']} | "
+            f"F1: {score['F1']}"
+        )
+        # # y_test_pred_all = self.label_encoder.inverse_transform(y_test_pred_all)
+        # submit_df = pd.DataFrame(self.id)
+        # submit_df["Transported"] = y_test_pred_all
+        # print(submit_df)
+        # print(self.train.columns)
+        # self.train.to_csv("train_feature.csv", index=False)
+        # submit_df.to_csv("submit.csv", index=False)
+
+    def get_model_config(self, x, y, val_data):
+        op = OptimParam(
+            self.model_name,
+            default_config=self.model_config,
+            input_dim=self.input_dim,
+            output_dim=self.output_dim,
+            X=x,
+            y=y,
+            val_data=val_data,
+            columns=self.columns,
+            target_column=self.target_column,
+            n_trials=self.n_trials,
+            n_startup_trials=self.n_startup_trials,
+            storage=self.storage,
+            study_name=f"{self.study_name}",
+            cv=self.cv,
+            n_jobs=self.n_jobs,
+            seed=self.seed,
+            task = self.task
+        )
+        return op.get_best_config()
