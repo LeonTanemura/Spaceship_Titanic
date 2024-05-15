@@ -1,12 +1,6 @@
 depth: 6
 iterations: 10000
 learning_rate: null
-border_count: null
 random_strength: null
 bagging_temperature: null
-# od_type: 'IncToDec'
 od_type: 'Iter'
-# od_wait: 10 
-# subsample: null
-# colsample_bylevel: null
-# min_data_in_leaf: null

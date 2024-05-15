@@ -1,7 +1,7 @@
 defaults: 
   - base
 
-cv: True
+cv: true
 n_trials: 50
 n_startup_trials: 10
 n_jobs: 1
