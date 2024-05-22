@@ -64,9 +64,9 @@ git push origin "branch-name"
 pullやり方
 ```bash
 git checkout main
-git pull origin main --rebase
+git pull
 git checkout "branch-name"
-git pull origin main
+git merge main
 ```
 
 - DATA
